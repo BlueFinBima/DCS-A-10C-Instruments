@@ -1,0 +1,29 @@
+#######################################
+# Syntax Coloring Map Servo
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+A10CLANDINGGEAR	KEYWORD1
+A10CLandingGear.h KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+setGearLED	KEYWORD2
+resetGearLED	KEYWORD2
+setLED	        KEYWORD2
+resetLED	KEYWORD2
+setMasterCautionLED KEYWORD2
+resetMasterCautionLED KEYWORD2
+readSwitch 	KEYWORD2
+setAddress	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+MASTERCAUTIONLED LITERAL1
+GEARWARNINGLED   LITERAL1
