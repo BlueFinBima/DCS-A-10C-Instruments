@@ -369,7 +369,7 @@ void loop() {
 			keystackPop(kk);
 			//  Now send the key info to the serial port
 			//  This is done in multiple prints to avoid the use of a string  
-			specialKeyActions;
+			specialkeyActions();
 			sprintf(replyBuffer, "C,%d,%d,\0", kk[2], kk[0]);
 			// note about values:
 			// Generally the decade of the value indicates the number of switchcodes (not positions) the switch has.
@@ -929,34 +929,50 @@ int keydataavailable(uint8_t i2c_address) {
 	}
 	return true;
 }
-void specialKeyActions(void) {
+void specialkeyActions(void) {
 	// This routine is to handle inter-device events where which the simulator does not communicate to us
 	// 
 	// Currently the events handled here are:
 	// 1) turning off the inverter or the battery switches does not turn off the CMSC display or the CMSP display
 	//
-	if (kk[0] == 3006 & kk[2] == 1) {
-		// this is the battery switch
-		if (kk[1] == 1) {
-			batteryState = true;
-		}
-		else {
-			batteryState = false;
-			cmspDisplay.clear();
-			writeCmscScreen(i2c_addr_cmsc, 0xff, "");
-		}
+	//
+	// we have been called following the kk array being populated with a key value set
+	// so that special actions can be performed.  These special actions are typically 
+	// needed when the simulator does not notify us of the consequences for one device
+	// when another has gone into a particular state.  
 
-	}
-	if (kk[0] == 3002 & kk[2] == 1) {
-		// this is the inverter switch
-		if (kk[1] == 1) {
-			inverterState = true;
+
+	switch (kk[2]) {
+	case 1:
+		switch (kk[0]) {
+		case 3006:
+			// this is the battery switch
+			if (kk[1] == 1) {
+				batteryState = true;
+			}
+			else {
+				batteryState = false;
+				cmspDisplay.clear();
+				writeCmscScreen(i2c_addr_cmsc, 0xff, "");
+			}
+			break;
+		case 3002:
+			// this is the inverter switch
+			if (kk[1] == 1) {
+				inverterState = true;
+			}
+			else {
+				inverterState = false;
+				cmspDisplay.clear();
+				writeCmscScreen(i2c_addr_cmsc, 0xff, "");
+			}
+			break;
+		default:
+			break;
 		}
-		else {
-			inverterState = false;
-			cmspDisplay.clear();
-			writeCmscScreen(i2c_addr_cmsc, 0xff, "");
-		}
+		break;
+	default:
+		break;
 	}
 }
 void GearWarning(int parm) {
@@ -1130,7 +1146,7 @@ void processCMS(char * cmdBuffer) {
 					//cmsMsgLine[4] = '\0';
 					if (j<5) {
 						// This is for the CMSP
-						if (inverterState && batteryState) {
+						if (inverterState && batteryState) { // jury still out about whether this test is necessary.  
 							cmspDisplay.setCursor(cmspPosn[0][j], cmspPosn[1][j]);
 							cmspDisplay.print(cmsMsgLine);
 						}
@@ -1148,7 +1164,7 @@ void processCMS(char * cmdBuffer) {
 						*/
 						//Serial.print(MsgTxtTypes[j]);Serial.print(" : ");Serial.println(cmsMsgLine);       
 
-						if (inverterState && batteryState) {
+						if (inverterState && batteryState) {  // jury still out about whether this test is necessary.  
 							writeCmscScreen(i2c_addr_cmsc, j - 5, cmsMsgLine);
 						}
 						else {
@@ -1442,38 +1458,6 @@ int16_t realKey(int16_t keycode) {
 		}
 	}
 	return -1;
-}
-void specialkeyActions(void) {
-	// we have been called following the kk array being populated with a key value set
-	// so that special actions can be performed.  These special actions are typically 
-	// needed when the simulator does not notify us of the consequences for one device
-	// when another has gone into a particular state.  
-
-	// Clean up after the inverter is turned off
-	if (kk[0] == 123) {
-		if (kk[1] == 0) {
-			inverterState = false;
-		}
-		else {
-			inverterState = true;
-
-		}
-
-
-	}
-	// Clean up after the battery has been turned off
-	if (kk[0] == 123) {
-		if (kk[1] == 0) {
-			batteryState = false;
-		}
-		else {
-			batteryState = true;
-
-		}
-
-
-	}
-
 }
 void connectToWiFi(const char * ssid, const char * pwd) {
 	Serial.println("Connecting to WiFi network: " + String(ssid));
