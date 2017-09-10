@@ -41,8 +41,8 @@
 #include "keyMappings.h"              // this is the keyMapping master file.
 
 // WiFi network name and password:
-const char * networkName = "***REMOVED***";
-const char * networkPswd = "***REMOVED***";
+const char * networkName = "AAA";
+const char * networkPswd = "AAAAAAAAAAAA";
 
 //IP address to send UDP data to:
 // either use the ip address of the server or 
@@ -50,8 +50,9 @@ const char * networkPswd = "***REMOVED***";
 const char * udpAddress = "10.1.1.2";
 const uint16_t udpPort = 3339;
 uint16_t udpOutBndPort = 0;
-char packetBuffer[576];               // network buffer to hold incoming packet
-char cmdBuffer[576];                  // this is a buffer to hold a single command (there can be long text command values
+#define MAXPACKETSIZE 2048
+char packetBuffer[MAXPACKETSIZE];               // network buffer to hold incoming packet
+char cmdBuffer[MAXPACKETSIZE];                  // this is a buffer to hold a single command (there can be long text command values
 char replyBuffer[32];                 // a string to send back
 boolean connected = false;            // Indicate if we are currently connected
 byte cmscLastSwitchState = 0;         // This holds the state of the switches from last time so that we can report changes only
@@ -436,7 +437,7 @@ void loop() {
 		if (packetSize >0) {
 			udpOutBndPort = udp.remotePort();  // grab the ephemeral port number quickly because it could go away
 											   //receive data
-			int packetLen = udp.read(packetBuffer, 576);
+			int packetLen = udp.read(packetBuffer, MAXPACKETSIZE);
 			if (packetLen > 0) {
 				// Serial.print("Recv Data len=");Serial.print(packetLen,DEC);Serial.print(" ->");Serial.println(packetBuffer);
 				packetBuffer[packetLen] = '\0';
